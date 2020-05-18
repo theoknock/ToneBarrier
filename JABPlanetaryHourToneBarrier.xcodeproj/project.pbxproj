@@ -279,6 +279,7 @@
 		B904CDB922D3CA340086CAF8 /* JABPlanetaryHourToneBarrier */ = {
 			isa = PBXGroup;
 			children = (
+				B923B37223FB66DA00B67763 /* JABPlanetaryHourFrameworks.xcodeproj */,
 				B96EB33B230FA3CB0054F514 /* JABPlanetaryHourToneBarrierDebug.entitlements */,
 				B96EB338230F9F3F0054F514 /* JABPlanetaryHourToneBarrierRelease.entitlements */,
 				B904CDBA22D3CA340086CAF8 /* AppDelegate.h */,
@@ -289,7 +290,6 @@
 				B9E0231523126ADE00035A41 /* GraphView.m */,
 				B98CF2C822D583CB00661419 /* ToneGenerator.h */,
 				B98CF2C722D583CB00661419 /* ToneGenerator.m */,
-				B923B37223FB66DA00B67763 /* JABPlanetaryHourFrameworks.xcodeproj */,
 				B90B3A4B23D3F3C3008944E8 /* Frequencies.h */,
 				B90B3A4C23D3F3C3008944E8 /* Frequencies.m */,
 				B968BA0B23A9E40F005C6653 /* ToneBarrierPlayer.h */,

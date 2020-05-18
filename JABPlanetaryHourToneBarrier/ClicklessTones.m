@@ -5,6 +5,9 @@
 //  Created by Xcode Developer on 12/17/19.
 //  Copyright © 2019 The Life of a Demoniac. All rights reserved.
 //
+// TO-DO: Blend release of each frequency with the attack of the next using one of three approaches:
+//        1) Send the last frequency with the next when creating the audio buffer and cross-fade (overlap amplitude envelopes)
+//        2) Alternate consecutive frequencies between two separate player nodes, offsetting the schedules by the duration of the release and attack (and increasing the sustain by that same duration)
 
 #import "ClicklessTones.h"
 #include "easing.h"
@@ -17,6 +20,7 @@ static const float max_duration   = 2.00;
 
 @interface ClicklessTones ()
 {
+    NSInteger blend_frequency[2];
     double frequency[2];
     NSInteger alternate_channel_flag;
     double duration_bifurcate;
