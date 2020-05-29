@@ -105,13 +105,18 @@ double (^fade)(Fade, double, double) = ^double(Fade fadeType, double x, double f
     static void (^block)(void);
     block = ^void(void)
     {
-        createAudioBufferCompletionBlock(createAudioBuffer((Fade)self->alternate_channel_flag, [_distributor nextInt]/*(((double)arc4random() / 0x100000000) * (high_frequency - low_frequency) + low_frequency)*/, [_distributor nextInt] /*(((double)arc4random() / 0x100000000) * (high_frequency - low_frequency) + low_frequency)*/), createAudioBuffer((Fade)self->alternate_channel_flag, [_distributor nextInt] /*(((double)arc4random() / 0x100000000) * (high_frequency - low_frequency) + low_frequency)*/, [_distributor nextInt] /*(((double)arc4random() / 0x100000000) * (high_frequency - low_frequency) + low_frequency)*/), ^{
+        AudioBuffers * audio_buffers = malloc(sizeof(AudioBuffers));
+        audio_buffers->buffer1 = createAudioBuffer((Fade)self->alternate_channel_flag, (((double)arc4random() / 0x100000000) * (high_frequency - low_frequency) + low_frequency), (((double)arc4random() / 0x100000000) * (high_frequency - low_frequency) + low_frequency));
+        audio_buffers->buffer2 = createAudioBuffer((Fade)self->alternate_channel_flag, (((double)arc4random() / 0x100000000) * (high_frequency - low_frequency) + low_frequency), (((double)arc4random() / 0x100000000) * (high_frequency - low_frequency) + low_frequency));
+        createAudioBufferCompletionBlock(audio_buffers, ^{
+//        createAudioBufferCompletionBlock(createAudioBuffer((Fade)self->alternate_channel_flag, [self->_distributor nextInt]/*(((double)arc4random() / 0x100000000) * (high_frequency - low_frequency) + low_frequency)*/, [_distributor nextInt] /*(((double)arc4random() / 0x100000000) * (high_frequency - low_frequency) + low_frequency)*/), createAudioBuffer((Fade)self->alternate_channel_flag, [_distributor nextInt] /*(((double)arc4random() / 0x100000000) * (high_frequency - low_frequency) + low_frequency)*/, [_distributor nextInt] /*(((double)arc4random() / 0x100000000) * (high_frequency - low_frequency) + low_frequency)*/), ^{
 //            NSLog(@"alternate_channel_flag == %ld", (long)self->alternate_channel_flag);
             self->alternate_channel_flag = (self->alternate_channel_flag == 1) ? 0 : 1;
-            self->duration_bifurcate = [_distributor_duration nextInt]; //(((double)arc4random() / 0x100000000) * (max_duration - min_duration) + min_duration);
+            self->duration_bifurcate = /*[self->_distributor_duration nextInt];*/ (((double)arc4random() / 0x100000000) * (max_duration - min_duration) + min_duration);
             // THIS IS WRONG (BELOW)
 //            self->frequency[0] = (((double)arc4random() / 0x100000000) * (high_frequency - low_frequency) + low_frequency); //self->frequency[1];
 //            self->frequency[1] = (((double)arc4random() / 0x100000000) * (high_frequency - low_frequency) + low_frequency);
+            
             block();
             
             

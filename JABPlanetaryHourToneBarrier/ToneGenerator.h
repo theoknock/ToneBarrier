@@ -9,12 +9,18 @@
 #import <CoreGraphics/CoreGraphics.h>
 #import <AVFoundation/AVFoundation.h>
 
+
+typedef struct audio_buffers
+{
+    AVAudioPCMBuffer * _Nonnull buffer1, * _Nonnull buffer2;
+} AudioBuffers;
+
 typedef void (^PlayToneCompletionBlock)(void);
-typedef void (^CreateAudioBufferCompletionBlock)(AVAudioPCMBuffer * _Nonnull buffer1, AVAudioPCMBuffer * _Nonnull buffer2, PlayToneCompletionBlock _Nonnull playToneCompletionBlock);
+typedef void (^CreateAudioBufferCompletionBlock)(AudioBuffers * audio_buffers, /*AVAudioPCMBuffer * _Nonnull buffer1, AVAudioPCMBuffer * _Nonnull buffer2, */ PlayToneCompletionBlock _Nonnull playToneCompletionBlock);
 
 @protocol ToneBarrierPlayerDelegate <NSObject>
 
-- (void)createAudioBufferWithFormat:(AVAudioFormat *)audioFormat completionBlock:(CreateAudioBufferCompletionBlock _Nonnull )createAudioBufferCompletionBlock;
+- (void)createAudioBufferWithFormat:(AVAudioFormat * _Nonnull)audioFormat completionBlock:(CreateAudioBufferCompletionBlock _Nonnull )createAudioBufferCompletionBlock;
 
 @end
 

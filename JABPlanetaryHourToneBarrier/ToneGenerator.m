@@ -240,15 +240,18 @@ NSArray<NSDictionary<NSString *, id> *> *(^tonesDictionary)(void) = ^NSArray<NSD
             //            ToneBarrierPlayer *player = [[ToneBarrierPlayer alloc] init];
             ClicklessTones *tones = [[ClicklessTones alloc] init];
             [ToneBarrierPlayer.context setPlayer:(id<ToneBarrierPlayerDelegate> _Nonnull)tones];
-            [ToneBarrierPlayer.context createAudioBufferWithFormat:[self->_mixerNode outputFormatForBus:0] completionBlock:^(AVAudioPCMBuffer * _Nonnull buffer1, AVAudioPCMBuffer * _Nonnull buffer2, PlayToneCompletionBlock playToneCompletionBlock) {
+            [ToneBarrierPlayer.context createAudioBufferWithFormat:[self->_mixerNode outputFormatForBus:0] completionBlock:^(AudioBuffers * audio_buffers/* AVAudioPCMBuffer * _Nonnull buffer1, AVAudioPCMBuffer * _Nonnull buffer2, */, PlayToneCompletionBlock playToneCompletionBlock) {
 
-                [self->_playerOneNode scheduleBuffer:buffer1 atTime:nil options:AVAudioPlayerNodeBufferInterruptsAtLoop completionCallbackType:AVAudioPlayerNodeCompletionDataPlayedBack completionHandler:^(AVAudioPlayerNodeCompletionCallbackType callbackType) {
+                [self->_playerOneNode scheduleBuffer:audio_buffers->buffer1 atTime:nil options:AVAudioPlayerNodeBufferInterruptsAtLoop completionCallbackType:AVAudioPlayerNodeCompletionDataPlayedBack completionHandler:^(AVAudioPlayerNodeCompletionCallbackType callbackType) {
 //                    if (callbackType == AVAudioPlayerNodeCompletionDataPlayedBack)
 //                        playToneCompletionBlock();
+                    
+                    audio_buffers->buffer1 = nil;
                 }];
                 
-                [self->_playerTwoNode scheduleBuffer:buffer2 atTime:nil options:AVAudioPlayerNodeBufferInterruptsAtLoop completionCallbackType:AVAudioPlayerNodeCompletionDataPlayedBack completionHandler:^(AVAudioPlayerNodeCompletionCallbackType callbackType) {
+                [self->_playerTwoNode scheduleBuffer:audio_buffers->buffer2 atTime:nil options:AVAudioPlayerNodeBufferInterruptsAtLoop completionCallbackType:AVAudioPlayerNodeCompletionDataPlayedBack completionHandler:^(AVAudioPlayerNodeCompletionCallbackType callbackType) {
                     if (callbackType == AVAudioPlayerNodeCompletionDataPlayedBack)
+                        audio_buffers->buffer2 = nil;
                         playToneCompletionBlock();
                     //                NSLog(@"Calling playToneCompletionBlock 2...");
                 }];
