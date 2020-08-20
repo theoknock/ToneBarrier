@@ -6,6 +6,10 @@
 //  Copyright © 2019 The Life of a Demoniac. All rights reserved.
 //
 
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 #import "ViewController.h"
 #import "ToneGenerator.h"
 #import "AppDelegate.h"
@@ -77,12 +81,14 @@
     //    [pathLayerChannelL setBorderWidth:0.25];
     //    [self.view.layer addSublayer:pathLayerChannelL];
     
-    ToneGenerator.sharedGenerator.toneWaveRendererDelegate = self;
+//    ToneGenerator.sharedGenerator.toneWaveRendererDelegate = self;
     
     [(AppDelegate *)[[UIApplication sharedApplication] delegate] setDeviceStatusInterfaceDelegate:(id<DeviceStatusInterfaceDelegate>)self];
     [self setupDeviceMonitoring];
     [self activateWatchConnectivitySession];
     [self addStatusObservers];
+    
+    [self toggleToneGenerator:self.playButton];
     
 }
 
@@ -250,7 +256,7 @@ static void (^drawPathToChannelPathLayer)(CAShapeLayer *, UIBezierPath *, UIColo
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateDeviceStatus) name:UIDeviceBatteryStateDidChangeNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateDeviceStatus) name:NSProcessInfoPowerStateDidChangeNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateDeviceStatus) name:AVAudioSessionRouteChangeNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(togglePlayButton) name:@"ToneBarrierPlayingNotification" object:nil];
+//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(togglePlayButton) name:@"ToneBarrierPlayingNotification" object:nil];
     
 }
 
@@ -500,64 +506,65 @@ static NSDictionary<NSString *, id> * (^deviceStatus)(UIDevice *) = ^NSDictionar
 
 - (IBAction)toggleToneGenerator:(UIButton *)sender
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if (![ToneGenerator.sharedGenerator.audioEngine isRunning]) {
-            [ToneGenerator.sharedGenerator start];
-        } else if ([ToneGenerator.sharedGenerator.audioEngine isRunning]) {
-            [ToneGenerator.sharedGenerator stop];
-        }
-    });
-    [self updateDeviceStatus];
-}
-
-- (void)togglePlayButton
-{
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if ([ToneGenerator.sharedGenerator.audioEngine isRunning]) {
-            [self.playButton setImage:[UIImage systemImageNamed:@"stop"] forState:UIControlStateNormal];
-        } else if (![ToneGenerator.sharedGenerator.audioEngine isRunning]) {
-            [self.playButton setImage:[UIImage systemImageNamed:@"play"] forState:UIControlStateNormal];
-        }
-    });
+    [ToneGenerator.sharedGenerator play];
+    [sender setImage:([ToneGenerator.sharedGenerator.audioEngine isRunning]) ? [UIImage systemImageNamed:@"stop"] : [UIImage systemImageNamed:@"play"] forState:UIControlStateNormal];
+//    [self updateDeviceStatus];
 }
 
 - (void)handleInterruption:(NSNotification *)notification
 {
-    _wasPlaying = ([ToneGenerator.sharedGenerator.audioEngine isRunning]) ? TRUE : FALSE;
-    
-    NSDictionary *userInfo = [notification userInfo];
-    
-    if ([ToneGenerator.sharedGenerator.audioEngine isRunning])
-    {
-        NSInteger typeValue = [[userInfo objectForKey:AVAudioSessionInterruptionTypeKey] unsignedIntegerValue];
-        AVAudioSessionInterruptionType type = (AVAudioSessionInterruptionType)typeValue;
-        if (type)
-        {
-            if (type == AVAudioSessionInterruptionTypeBegan)
-            {
-                if (_wasPlaying)
-                {
-                    [ToneGenerator.sharedGenerator stop];
-                    [self.playButton setImage:[UIImage systemImageNamed:@"pause"] forState:UIControlStateNormal];
-                }
-            } else if (type == AVAudioSessionInterruptionTypeEnded)
-            {
-//                NSInteger optionsValue = [[userInfo objectForKey:AVAudioSessionInterruptionOptionKey] unsignedIntegerValue];
-//                AVAudioSessionInterruptionOptions options = (AVAudioSessionInterruptionOptions)optionsValue;
-//                if (options == AVAudioSessionInterruptionOptionShouldResume)
+//    _wasPlaying = ([ToneGenerator.sharedGenerator.audioEngine isRunning]) ? TRUE : FALSE;
+//    
+//
+//    NSDictionary *userInfo = [notification userInfo];
+//    
+//    if ([ToneGenerator.sharedGenerator.audioEngine isRunning])
+//    {
+//        NSInteger typeValue = [[userInfo objectForKey:AVAudioSessionInterruptionTypeKey] unsignedIntegerValue];
+//        AVAudioSessionInterruptionType type = (AVAudioSessionInterruptionType)typeValue;
+//        if (type)
+//        {
+//            if (type == AVAudioSessionInterruptionTypeBegan)
+//            {
+//                if (_wasPlaying)
 //                {
-                if (_wasPlaying)
-                {
-                    [ToneGenerator.sharedGenerator start];
-                    [self.playButton setImage:[UIImage systemImageNamed:@"play"] forState:UIControlStateNormal];
-                }
+//                    [ToneGenerator.sharedGenerator stop];
+//                    [self.playButton setImage:[UIImage systemImageNamed:@"pause"] forState:UIControlStateNormal];
 //                }
-            }
-        }
-    }
-    
-    [self updateWatchConnectivityStatus];
-    [self updateDeviceStatus];
+//            } else if (type == AVAudioSessionInterruptionTypeEnded)
+//            {
+////                NSInteger optionsValue = [[userInfo objectForKey:AVAudioSessionInterruptionOptionKey] unsignedIntegerValue];
+////                AVAudioSessionInterruptionOptions options = (AVAudioSessionInterruptionOptions)optionsValue;
+////                if (options == AVAudioSessionInterruptionOptionShouldResume)
+////                {
+//                if (_wasPlaying)
+//                {
+//                    [ToneGenerator.sharedGenerator start];
+//                    [self.playButton setImage:[UIImage systemImageNamed:@"play"] forState:UIControlStateNormal];
+//                }
+////                }
+//            }
+//        }
+//
+//    if (interruptionType == AVAudioSessionInterruptionTypeBegan)
+//    {
+//        NSLog(@"AVAudioSessionInterruptionTypeBegan");
+//        dispatch_barrier_async([ToneGenerator.sharedGenerator audio_buffer_request_concurrent_queue], ^{
+//            NSLog(@"Locking semaphore...");
+//            dispatch_semaphore_wait([ToneGenerator.sharedGenerator audio_buffer_request_lock_semaphore], DISPATCH_TIME_FOREVER);
+//            NSLog(@"Semaphore unlocked");
+//        });
+//    } else if (interruptionType == AVAudioSessionInterruptionTypeEnded) // AVAudioSessionInterruptionTypeEnded will not occur if the user responds to tne phone call in some way, whether they accept or refuse a call
+//    {
+//        NSLog(@"AVAudioSessionInterruptionTypeEnded");
+//        NSLog(@"Semaphore locked");
+//        dispatch_semaphore_signal([ToneGenerator.sharedGenerator audio_buffer_request_lock_semaphore]);
+//        NSLog(@"Unlsocking semaphore...");
+//>>>>>>> Stashed changes
+//    }
+//    
+//    [self updateWatchConnectivityStatus];
+//    [self updateDeviceStatus];
 }
 
 @end
