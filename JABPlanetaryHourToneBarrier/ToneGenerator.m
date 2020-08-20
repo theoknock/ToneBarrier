@@ -333,7 +333,7 @@ double (^envelope_lfo)(double, double) = ^(double time, double slope)
 typedef struct frequencies
 {
     int frequency_count;
-    void * __nullable frequencies;
+    double * __nullable frequencies;             // Frequencies.frequencies = malloc(Frequencies.frequency_count * sizeof(double));
 } Frequencies;
 
 typedef enum : NSUInteger
@@ -342,21 +342,82 @@ typedef enum : NSUInteger
     StereoChannelOutputRight
 } StereoChannelOutput;
 
+// compare to AudioBuffer
 typedef struct stereo_channel
 {
     StereoChannelOutput stereo_output_channel;
-    Frequencies frequency[1];
+    Frequencies frequencies;                    // compare to AudioFormatListItem.mASBD (AudioStreamBasicDescription)
     AVAudioFramePosition index_start;
     AVAudioFrameCount samples_count;
-    void * __nullable samples;
+    float * __nullable samples;                 // pointer to AVAudioPCMBuffer.floatChannelData[0...1]
 } StereoChannel;
 
+// compare to AudioBufferList
 typedef struct stereo_channel_list
 {
     AVAudioFrameCount frame_capacity;
-    AVAudioChannelCount channel_count;
-    StereoChannel channels[1];
+    AVAudioChannelCount channel_count;          // compare to AudioBufferList.mNumberBuffers
+    StereoChannel channels[1];                  // compare to AudioBufferList.mBuffers (AudioBuffer)
 } StereoChannelList;
+
+// Modify for Frequencies struct initializer
+//static OSStatus recordingCallback(void *inRefCon,
+//                                  AudioUnitRenderActionFlags *ioActionFlags,
+//                                  const AudioTimeStamp *inTimeStamp,
+//                                  UInt32 inBusNumber,
+//                                  UInt32 inNumberFrames,
+//                                  AudioBufferList *ioData) {
+//
+//    // the data gets rendered here
+//    AudioBuffer buffer;
+//
+//    // a variable where we check the status
+//    OSStatus status;
+//
+//    /**
+//     This is the reference to the object who owns the callback.
+//     */
+//    AudioProcessor *audioProcessor = (AudioProcessor*) inRefCon;
+//
+//    /**
+//     on this point we define the number of channels, which is mono
+//     for the iphone. the number of frames is usally 512 or 1024.
+//     */
+//    buffer.mDataByteSize = inNumberFrames * 2; // sample size
+//    buffer.mNumberChannels = 1; // one channel
+//    buffer.mData = malloc( inNumberFrames * 2 ); // buffer size
+//
+//    // we put our buffer into a bufferlist array for rendering
+//    AudioBufferList bufferList;
+//    bufferList.mNumberBuffers = 1;
+//    bufferList.mBuffers[0] = buffer;
+//
+//    // render input and check for error
+//    status = AudioUnitRender([audioProcessor audioUnit], ioActionFlags, inTimeStamp, inBusNumber, inNumberFrames, &bufferList);
+//    [audioProcessor hasError:status:__FILE__:__LINE__];
+//
+//    // process the bufferlist in the audio processor
+//    [audioProcessor processBuffer:&bufferList];
+//
+//    // clean up the buffer
+//    free(bufferList.mBuffers[0].mData);
+//
+//    return noErr;
+//}
+
+
+static void(^initStereoChannel)(void * inRefCon, float * samples, AVAudioFrameCount samples_count, StereoChannelList * stereoChannelData)
+{
+    NSObject * refCon = (__bridge NSObject *) inRefCon;
+
+    // iterate over incoming stream an copy to output stream
+    for (int i = 0; i < stereoChannelData->channel_count; i++) {
+        StereoChannel channel = stereoChannelData->channels[i];
+        channel.samples_count = samples_count;
+        channel.samples       = samples;
+    }
+    return noErr;
+}
 
 void (^calculateChannelData)(AVAudioFrameCount, double, double, double, float *) = ^(AVAudioFrameCount sampleCount, double frequency, double duration, double outputVolume, float * samples)
 {
