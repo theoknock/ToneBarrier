@@ -13,8 +13,8 @@
 #import "ToneGenerator.h"
 #import "ToneBarrierPlayer.h"
 //#import "ClicklessTones.h"
-#import "FrequenciesPairs.h"
-#import "Frequencies.h"
+//#import "FrequenciesPairs.h"
+//#import "Frequencies.h"
 
 #include "easing.h"
 
@@ -330,39 +330,43 @@ double (^envelope_lfo)(double, double) = ^(double time, double slope)
     return env_lfo;
 };
 
-typedef enum : NSUInteger {
-    StereoOutputLeft,
-    StereoOutputRight
-} StereoOutput;
+typedef struct frequencies
+{
+    int frequency_count;
+    void * __nullable frequencies;
+} Frequencies;
 
-typedef struct stereo_channels {
-    float * samples;
-    AVAudioFrameCount frame_length;
-    AVAudioFramePosition start_frame;
-    StereoOutput stereo_output;
-    double frequency;
-    
-} StereoChannels[2];
+typedef enum : NSUInteger
+{
+    StereoChannelOutputLeft,
+    StereoChannelOutputRight
+} StereoChannelOutput;
 
-struct audio_buffer {
-    StereoChannels * channels;
-    AVAudioChannelCount channel_count;
+typedef struct stereo_channel
+{
+    StereoChannelOutput stereo_output_channel;
+    Frequencies frequency[1];
+    AVAudioFramePosition index_start;
+    AVAudioFrameCount samples_count;
+    void * __nullable samples;
+} StereoChannel;
+
+typedef struct stereo_channel_list
+{
     AVAudioFrameCount frame_capacity;
-} audio_buffer;
+    AVAudioChannelCount channel_count;
+    StereoChannel channels[1];
+} StereoChannelList;
 
 void (^calculateChannelData)(AVAudioFrameCount, double, double, double, float *) = ^(AVAudioFrameCount sampleCount, double frequency, double duration, double outputVolume, float * samples)
 {
-    
-//    for (AVAudioChannelCount channel = 0; channel < channelCount; ++channel)
-//    {
-        for (int index = 0; index < sampleCount; index++)
-        {
-            double normalized_time = normalize(0.0, 1.0, index, 0.0, sampleCount);
-            double sample          = sinf(M_PI * 2.0 * normalized_time * frequency) * envelope_lfo(normalized_time, outputVolume);
-
-            if (samples) samples[index] = sample;
-        }
-//    }
+    for (int index = 0; index < sampleCount; index++)
+    {
+        double normalized_time = normalize(0.0, 1.0, index, 0.0, sampleCount);
+        double sample          = sinf(M_PI * 2.0 * normalized_time * frequency) * envelope_lfo(normalized_time, outputVolume);
+        
+        if (samples) samples[index] = sample;
+    }
 };
 
 static void(^createAudioBuffer)(AVAudioSession *, AVAudioFormat *, CreateAudioBufferCompletionBlock) = ^(AVAudioSession * audioSession, AVAudioFormat * audioFormat, CreateAudioBufferCompletionBlock createAudioBufferCompletionBlock)
