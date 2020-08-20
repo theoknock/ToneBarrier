@@ -20,7 +20,7 @@
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    [[BGTaskScheduler sharedScheduler] registerForTaskWithIdentifier:@"com.blogspot.demonicactivity.bush.alan.james.JABPlanetaryHourToneBarrier.receiveApplicationContext"
+    [[BGTaskScheduler sharedScheduler] registerForTaskWithIdentifier:@"com.blogspot.demonicactivity.bush.alan.james.JABPlanetaryHourJABPlanetaryHourToneBarrier.receiveApplicationContext"
                                                           usingQueue:dispatch_get_main_queue() launchHandler:^(__kindof BGTask * _Nonnull task) {
         if (self->timer) self->timer = nil;
         self->timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, dispatch_get_main_queue());
@@ -36,7 +36,7 @@
 
 - (void)scheduleAppRefresh
 {
-    BGAppRefreshTaskRequest *request = [[BGAppRefreshTaskRequest alloc] initWithIdentifier:@"com.blogspot.demonicactivity.bush.alan.james.JABPlanetaryHourToneBarrier.receiveApplicationContext"];
+    BGAppRefreshTaskRequest *request = [[BGAppRefreshTaskRequest alloc] initWithIdentifier:@"com.blogspot.demonicactivity.bush.alan.james.JABPlanetaryHourJABPlanetaryHourToneBarrier.receiveApplicationContext"];
     [request setEarliestBeginDate:[NSDate date]];
     
     __autoreleasing NSError *error;
@@ -77,23 +77,6 @@
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
     // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
-    NSLog(@"%s", __PRETTY_FUNCTION__);
-//    [self scheduleAppRefresh];
-    [[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
-    
-    MPRemoteCommandCenter *remoteCommandCenter = [MPRemoteCommandCenter sharedCommandCenter];
-    
-    [[remoteCommandCenter togglePlayPauseCommand] addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
-//        dispatch_async(dispatch_get_main_queue(), ^{
-            NSLog(@"Event %@", [[event command] description]);
-            if (![ToneGenerator.sharedGenerator.playerOneNode isPlaying]) {
-                    [ToneGenerator.sharedGenerator start];
-            } else if ([ToneGenerator.sharedGenerator.playerOneNode isPlaying]) {
-                [ToneGenerator.sharedGenerator stop];
-            }
-//        });
-        return MPRemoteCommandHandlerStatusSuccess;
-    }];
 }
 
 

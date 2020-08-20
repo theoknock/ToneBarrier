@@ -15,8 +15,8 @@
 
 static const float high_frequency = 1750.0;
 static const float low_frequency  = 500.0;
-static const float min_duration   = 0.25;
-static const float max_duration   = 2.00;
+static const float min_duration   = 1.0;
+static const float max_duration   = 8.00;
 
 @interface ClicklessTones ()
 {
@@ -24,13 +24,16 @@ static const float max_duration   = 2.00;
     double frequency[2];
     NSInteger alternate_channel_flag;
     double duration_bifurcate;
+    GKMersenneTwisterRandomSource * _Nullable _randomizer;
+    GKGaussianDistribution * _Nullable _distributor;
+    GKMersenneTwisterRandomSource * _Nullable _randomizer_aux;
+    GKGaussianDistribution * _Nullable _distributor_aux;
+    
+    GKMersenneTwisterRandomSource * _Nullable _duration_randomizer;
+    GKRandomDistribution * _Nullable _duration_distributor;
+    GKMersenneTwisterRandomSource * _Nullable _trill_randomizer;
+    GKRandomDistribution * _Nullable _trill_distributor;
 }
-
-@property (nonatomic, readonly) GKMersenneTwisterRandomSource * _Nullable randomizer;
-@property (nonatomic, readonly) GKGaussianDistribution * _Nullable distributor;
-
-// Randomizes duration
-@property (nonatomic, readonly) GKGaussianDistribution * _Nullable distributor_duration;
 
 @end
 
@@ -44,8 +47,14 @@ static const float max_duration   = 2.00;
     if (self)
     {
         _randomizer  = [[GKMersenneTwisterRandomSource alloc] initWithSeed:time(NULL)];
-        _distributor = [[GKGaussianDistribution alloc] initWithRandomSource:_randomizer mean:(high_frequency / .75) deviation:low_frequency];
-        _distributor_duration = [[GKGaussianDistribution alloc] initWithRandomSource:_randomizer mean:max_duration deviation:min_duration];
+        _distributor = [[GKGaussianDistribution alloc] initWithRandomSource:_randomizer mean:(high_frequency / 1.5) deviation:low_frequency];
+        _randomizer_aux  = [[GKMersenneTwisterRandomSource alloc] initWithSeed:time(NULL)];
+        _distributor_aux = [[GKGaussianDistribution alloc] initWithRandomSource:_randomizer_aux mean:(high_frequency / 2.25) deviation:low_frequency];
+        
+        _duration_randomizer  = [[GKMersenneTwisterRandomSource alloc] initWithSeed:time(NULL)];
+        _duration_distributor = [[GKRandomDistribution alloc] initWithRandomSource:_duration_randomizer lowestValue:1 highestValue:8];
+        _trill_randomizer  = [[GKMersenneTwisterRandomSource alloc] initWithSeed:time(NULL)];
+        _trill_distributor = [[GKRandomDistribution alloc] initWithRandomSource:_trill_randomizer lowestValue:4 highestValue:6];
     }
     
     return self;
@@ -67,37 +76,65 @@ double (^fade)(Fade, double, double) = ^double(Fade fadeType, double x, double f
     return fade_effect;
 };
 
-- (float)generateRandomNumberBetweenMin:(int)min Max:(int)max
+double(^trill)(double, double, double) = ^double(double time, double trill, double freq_amp)
 {
-    return ( (arc4random() % (max-min+1)) + min );
-}
+    return freq_amp * pow(2.0 * pow(sinf(M_PI * time * trill), 2.0) * 0.5, 4.0);
+};
 
-- (void)createAudioBufferWithFormat:(AVAudioFormat *)audioFormat completionBlock:(CreateAudioBufferCompletionBlock)createAudioBufferCompletionBlock
+double(^amplitude)(double, double) = ^double(double time, double trill)
 {
+    double mid   = 0.5;
+//    double trill = 4.0;
+    double slope = 2.0;
+    BOOL invert  = FALSE;
     
-//    self->frequency[0] = (((double)arc4random() / 0x100000000) * (high_frequency - low_frequency) + low_frequency);
-//    self->frequency[1] = (((double)arc4random() / 0x100000000) * (high_frequency - low_frequency) + low_frequency);
-    static AVAudioPCMBuffer * (^createAudioBuffer)(Fade, double, double);
-    createAudioBuffer = ^AVAudioPCMBuffer *(Fade leading_fade, double frequencyLeft, double frequencyRight)
+    time = (mid > 1.0) ? pow(time, mid) : time;
+    time = (invert) ? 1.0 - time : time;
+    time = (trill != 1.0) ? time * (trill * time) : time;
+    double w = (M_PI * time);
+    w = pow(sinf(w), slope);
+
+    return sinf(w); //signbit(sinf(time * M_PI * 2));
+};
+
+float * (^calculateChannelData)(AVAudioFrameCount, float, int, float *, float *) = ^float * (AVAudioFrameCount samples, float frequency, int trill_value, float * floatChannelDataPtrsArray, float * floatChannelDataPtrs)
+{
+    int amplitude_frequency = arc4random_uniform(4) + 2;
+    
+    floatChannelDataPtrsArray = floatChannelDataPtrs;
+    for (int time = 0; time < samples; time++)
     {
-//        AVAudioFormat *audioFormat = [self->_mixerNode outputFormatForBus:0];
-        AVAudioFrameCount frameCount = audioFormat.sampleRate * (2.0 / [self generateRandomNumberBetweenMin:2 Max:4]);
-        AVAudioPCMBuffer *pcmBuffer = [[AVAudioPCMBuffer alloc] initWithPCMFormat:audioFormat frameCapacity:frameCount];
-        pcmBuffer.frameLength = frameCount;
-        float *left_channel  = pcmBuffer.floatChannelData[0];
-        float *right_channel = (audioFormat.channelCount == 2) ? pcmBuffer.floatChannelData[1] : nil;
+        double normalized_time = LinearInterpolation(time, samples);
+        if (floatChannelDataPtrsArray) floatChannelDataPtrsArray[time] = (NormalizedSineEaseInOut(normalized_time, frequency) * NormalizedSineEaseInOut(normalized_time, amplitude_frequency)) + (NormalizedSineEaseInOut(normalized_time, frequency * (5.0/4.0)) * NormalizedSineEaseInOut(normalized_time, amplitude_frequency));
+            //trill(normalized_time, trill_value, (NormalizedSineEaseInOut(normalized_time, frequency) * NormalizedSineEaseInOut(normalized_time, amplitude_frequency)) + (NormalizedSineEaseInOut(normalized_time, frequency * (5.0/4.0)) * NormalizedSineEaseInOut(normalized_time, amplitude_frequency)));
+    }
+    
+    return floatChannelDataPtrsArray;
+};
+
+static void(^createAudioBuffer)(AVAudioFormat *, CreateAudioBufferCompletionBlock) = ^(AVAudioFormat * audioFormat, CreateAudioBufferCompletionBlock createAudioBufferCompletionBlock)
+{
+    static AVAudioPCMBuffer * (^calculateBufferData)(AVAudioFormat *);
+    calculateBufferData = ^AVAudioPCMBuffer *(AVAudioFormat * audio_format)
+    {
+        double duration              = 2.0;
+        NSLog(@"duration: %f", duration);
+        double sampleRate            = [audio_format sampleRate];
+        AVAudioFrameCount frameCount = (sampleRate * 2.0) * duration; // duration = (1 / mSampleRate) * mFramesPerPacket
+        AVAudioPCMBuffer *pcmBuffer  = [[AVAudioPCMBuffer alloc] initWithPCMFormat:audio_format frameCapacity:frameCount];
+        pcmBuffer.frameLength        = sampleRate * duration; // The number of bytes in the buffer
+        float * channelL, * channelR;
         
-        int amplitude_frequency = arc4random_uniform(4) + 2;
-        for (int index = 0; index < frameCount; index++)
-        {
-            double normalized_index = LinearInterpolation(index, frameCount);
-            
-            if (left_channel)  left_channel[index]  = fade(FadeOut, normalized_index, (NormalizedSineEaseInOut(normalized_index, frequencyLeft)  * NormalizedSineEaseInOut(normalized_index, amplitude_frequency)));
-            if (right_channel) right_channel[index] = fade(FadeIn,  normalized_index, (NormalizedSineEaseInOut(normalized_index, frequencyRight) * NormalizedSineEaseInOut(normalized_index, amplitude_frequency))); // fade((leading_fade == FadeOut) ? FadeIn : leading_fade, normalized_index, (SineEaseInOutFrequency(normalized_index, frequencyRight) * NormalizedSineEaseInOutAmplitude((1.0 - normalized_index), 1)));
-        }
-        
-//        self->frequency[0] = (((double)arc4random() / 0x100000000) * (high_frequency - low_frequency) + low_frequency); //self->frequency[1];
-//        self->frequency[1] = (((double)arc4random() / 0x100000000) * (high_frequency - low_frequency) + low_frequency);
+        channelL = calculateChannelData(pcmBuffer.frameLength,
+                                        1000.0,
+                                        1.0,
+                                        channelL,
+                                        pcmBuffer.floatChannelData[0]);
+        channelR = calculateChannelData(pcmBuffer.frameLength,
+                                        1000.0,
+                                        1.0,
+                                        channelR,
+                                        ([audio_format channelCount] == 2) ? pcmBuffer.floatChannelData[1] : nil);
         
         return pcmBuffer;
     };
@@ -105,25 +142,53 @@ double (^fade)(Fade, double, double) = ^double(Fade fadeType, double x, double f
     static void (^block)(void);
     block = ^void(void)
     {
-        AudioBuffers * audio_buffers = malloc(sizeof(AudioBuffers));
-        audio_buffers->buffer1 = createAudioBuffer((Fade)self->alternate_channel_flag, (((double)arc4random() / 0x100000000) * (high_frequency - low_frequency) + low_frequency), (((double)arc4random() / 0x100000000) * (high_frequency - low_frequency) + low_frequency));
-        audio_buffers->buffer2 = createAudioBuffer((Fade)self->alternate_channel_flag, (((double)arc4random() / 0x100000000) * (high_frequency - low_frequency) + low_frequency), (((double)arc4random() / 0x100000000) * (high_frequency - low_frequency) + low_frequency));
-        createAudioBufferCompletionBlock(audio_buffers, ^{
-//        createAudioBufferCompletionBlock(createAudioBuffer((Fade)self->alternate_channel_flag, [self->_distributor nextInt]/*(((double)arc4random() / 0x100000000) * (high_frequency - low_frequency) + low_frequency)*/, [_distributor nextInt] /*(((double)arc4random() / 0x100000000) * (high_frequency - low_frequency) + low_frequency)*/), createAudioBuffer((Fade)self->alternate_channel_flag, [_distributor nextInt] /*(((double)arc4random() / 0x100000000) * (high_frequency - low_frequency) + low_frequency)*/, [_distributor nextInt] /*(((double)arc4random() / 0x100000000) * (high_frequency - low_frequency) + low_frequency)*/), ^{
-//            NSLog(@"alternate_channel_flag == %ld", (long)self->alternate_channel_flag);
+        createAudioBufferCompletionBlock(calculateBufferData(audioFormat), ^{            
+            block();
+        });
+    };
+    block();
+};
+
+- (void)createAudioBufferWithFormat:(AVAudioFormat *)audioFormat completionBlock:(CreateAudioBufferCompletionBlock)createAudioBufferCompletionBlock
+{
+    static AVAudioPCMBuffer * (^calculateBufferData)(AVAudioFormat *, GKGaussianDistribution *, GKGaussianDistribution *, GKGaussianDistribution *);
+    calculateBufferData = ^AVAudioPCMBuffer *(AVAudioFormat * audio_format, GKGaussianDistribution * frequency_distributor, GKGaussianDistribution * duration_distributor, GKGaussianDistribution * trill_distributor)
+    {
+        double duration              = [duration_distributor nextInt];
+        NSLog(@"duration: %f", duration);
+        double sampleRate            = [audio_format sampleRate];
+        AVAudioFrameCount frameCount = (sampleRate * 2.0) * duration; // duration = (1 / mSampleRate) * mFramesPerPacket
+        AVAudioPCMBuffer *pcmBuffer  = [[AVAudioPCMBuffer alloc] initWithPCMFormat:audio_format frameCapacity:frameCount];
+        pcmBuffer.frameLength        = sampleRate * duration; // The number of bytes in the buffer
+        float * channelL, * channelR;
+        
+        int trill_value = (int)[trill_distributor nextInt];
+        channelL = calculateChannelData(pcmBuffer.frameLength,
+                                        [frequency_distributor nextInt],
+                                        trill_value,
+                                        channelL,
+                                        pcmBuffer.floatChannelData[0]);
+        channelR = calculateChannelData(pcmBuffer.frameLength,
+                                        [frequency_distributor nextInt],
+                                        trill_value,
+                                        channelR,
+                                        ([audio_format channelCount] == 2) ? pcmBuffer.floatChannelData[1] : nil);
+        
+        return pcmBuffer;
+    };
+    
+    static void (^block)(void);
+    block = ^void(void)
+    {
+        createAudioBufferCompletionBlock(calculateBufferData(audioFormat, (self->alternate_channel_flag == 0) ? _distributor : _distributor_aux, _duration_distributor, _trill_distributor), ^{
             self->alternate_channel_flag = (self->alternate_channel_flag == 1) ? 0 : 1;
-            self->duration_bifurcate = /*[self->_distributor_duration nextInt];*/ (((double)arc4random() / 0x100000000) * (max_duration - min_duration) + min_duration);
-            // THIS IS WRONG (BELOW)
-//            self->frequency[0] = (((double)arc4random() / 0x100000000) * (high_frequency - low_frequency) + low_frequency); //self->frequency[1];
-//            self->frequency[1] = (((double)arc4random() / 0x100000000) * (high_frequency - low_frequency) + low_frequency);
+            self->duration_bifurcate = (((double)arc4random() / 0x100000000) * (max_duration - min_duration) + min_duration);
             
             block();
-            
-            
-            
         });
     };
     block();
 }
 
 @end
+//

@@ -4,7 +4,7 @@
 <dict>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
-		<string>com.blogspot.demonicactivity.bush.alan.james.JABPlanetaryHourToneBarrier.receiveApplicationContext</string>
+		<string>com.blogspot.demonicactivity.bush.alan.james.JABPlanetaryHourJABPlanetaryHourToneBarrier.receiveApplicationContext</string>
 	</array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
@@ -40,7 +40,7 @@
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
 	<key>WKCompanionAppBundleIdentifier</key>
-	<string>com.blogspot.demonicactivity.bush.alan.james.ToneBarrier</string>
+	<string>com.blogspot.demonicactivity.bush.alan.james.JABPlanetaryHourToneBarrier</string>
 	<key>WKWatchKitApp</key>
 	<true/>
 </dict>

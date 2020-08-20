@@ -36,11 +36,8 @@
 		B904CDEC22D3CA350086CAF8 /* ComplicationController.m in Sources */ = {isa = PBXBuildFile; fileRef = B904CDEB22D3CA350086CAF8 /* ComplicationController.m */; };
 		B904CDEE22D3CA360086CAF8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B904CDED22D3CA360086CAF8 /* Assets.xcassets */; };
 		B90B3A4D23D3F3C3008944E8 /* Frequencies.m in Sources */ = {isa = PBXBuildFile; fileRef = B90B3A4C23D3F3C3008944E8 /* Frequencies.m */; };
-		B968BA0A23A9E303005C6653 /* ClicklessTones.m in Sources */ = {isa = PBXBuildFile; fileRef = B968BA0923A9E303005C6653 /* ClicklessTones.m */; };
 		B968BA0D23A9E40F005C6653 /* ToneBarrierPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = B968BA0C23A9E40F005C6653 /* ToneBarrierPlayer.m */; };
 		B969248F22F6923A002440CE /* WatchToneGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = B969248E22F6923A002440CE /* WatchToneGenerator.m */; };
-		B969249122F696B3002440CE /* JABPlanetaryHourWatchFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B969249022F696B3002440CE /* JABPlanetaryHourWatchFramework.framework */; };
-		B969249222F696B3002440CE /* JABPlanetaryHourWatchFramework.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B969249022F696B3002440CE /* JABPlanetaryHourWatchFramework.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		B96EB335230F9F090054F514 /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B96EB334230F9F090054F514 /* HealthKit.framework */; };
 		B96EB337230F9F0E0054F514 /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B96EB334230F9F090054F514 /* HealthKit.framework */; };
 		B96EB339230F9F3F0054F514 /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B96EB334230F9F090054F514 /* HealthKit.framework */; };
@@ -55,6 +52,7 @@
 		B9AB427422DD1A5A00406201 /* JABPlanetaryHourToneBarrierIntentsExtensionUI.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = B9AB426722DD1A5A00406201 /* JABPlanetaryHourToneBarrierIntentsExtensionUI.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		B9AB427722DD1A5A00406201 /* JABPlanetaryHourToneBarrierIntentsExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = B9AB425D22DD1A5900406201 /* JABPlanetaryHourToneBarrierIntentsExtension.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		B9B9C00D2364DE7E007DC93D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B9B9C00C2364DE7E007DC93D /* Assets.xcassets */; };
+		B9C4D79224D621230041D7A9 /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B9C4D79124D621230041D7A9 /* NetworkExtension.framework */; };
 		B9D6ABB52362338800CBF25C /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B9D6ABB42362338800CBF25C /* AudioToolbox.framework */; };
 		B9D6ABB7236237D200CBF25C /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B9D6ABB6236237D200CBF25C /* MediaPlayer.framework */; };
 		B9E0231623126ADE00035A41 /* GraphView.m in Sources */ = {isa = PBXBuildFile; fileRef = B9E0231523126ADE00035A41 /* GraphView.m */; };
@@ -132,9 +130,18 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				B969249222F696B3002440CE /* JABPlanetaryHourWatchFramework.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B9C4D76324D614C30041D7A9 /* Embed App Clips */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/AppClips";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			name = "Embed App Clips";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -174,8 +181,6 @@
 		B968BA0C23A9E40F005C6653 /* ToneBarrierPlayer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ToneBarrierPlayer.m; sourceTree = "<group>"; wrapsLines = 0; };
 		B969248D22F6923A002440CE /* WatchToneGenerator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WatchToneGenerator.h; sourceTree = "<group>"; };
 		B969248E22F6923A002440CE /* WatchToneGenerator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WatchToneGenerator.m; sourceTree = "<group>"; };
-		B969249022F696B3002440CE /* JABPlanetaryHourWatchFramework.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = JABPlanetaryHourWatchFramework.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		B96EB333230F9F090054F514 /* JABPlanetaryHourToneBarrierIntentsExtensionRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = JABPlanetaryHourToneBarrierIntentsExtensionRelease.entitlements; sourceTree = "<group>"; };
 		B96EB334230F9F090054F514 /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = System/Library/Frameworks/HealthKit.framework; sourceTree = SDKROOT; };
 		B96EB336230F9F0E0054F514 /* JABPlanetaryHourToneBarrierIntentsExtensionUIRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = JABPlanetaryHourToneBarrierIntentsExtensionUIRelease.entitlements; sourceTree = "<group>"; };
 		B96EB338230F9F3F0054F514 /* JABPlanetaryHourToneBarrierRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = JABPlanetaryHourToneBarrierRelease.entitlements; sourceTree = "<group>"; };
@@ -191,7 +196,6 @@
 		B98EBEED230F3E1100C94E2E /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS6.0.sdk/System/Library/Frameworks/HealthKit.framework; sourceTree = DEVELOPER_DIR; };
 		B9A17FAE2396003A009F5926 /* easing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = easing.h; sourceTree = "<group>"; };
 		B9A17FAF2396003A009F5926 /* easing.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = easing.c; sourceTree = "<group>"; };
-		B9A553EA24815D1600941295 /* JABPlanetaryHourFrameworks.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = JABPlanetaryHourFrameworks.xcodeproj; path = "../../../../Documents/JABPlanetaryHour ƒ/JABPlanetaryHourFrameworks/JABPlanetaryHourFrameworks.xcodeproj"; sourceTree = "<group>"; };
 		B9AB425D22DD1A5900406201 /* JABPlanetaryHourToneBarrierIntentsExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = JABPlanetaryHourToneBarrierIntentsExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		B9AB425F22DD1A5A00406201 /* IntentHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IntentHandler.h; sourceTree = "<group>"; };
 		B9AB426022DD1A5A00406201 /* IntentHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IntentHandler.m; sourceTree = "<group>"; };
@@ -204,6 +208,19 @@
 		B9AB427122DD1A5A00406201 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B9AB427E22DD73F900406201 /* JABPlanetaryHourToneBarrier WatchKit ExtensionRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "JABPlanetaryHourToneBarrier WatchKit ExtensionRelease.entitlements"; sourceTree = "<group>"; };
 		B9B9C00C2364DE7E007DC93D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B9C4D77124D61B3E0041D7A9 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		B9C4D77224D61B3E0041D7A9 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		B9C4D77424D61B3E0041D7A9 /* SceneDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SceneDelegate.h; sourceTree = "<group>"; };
+		B9C4D77524D61B3E0041D7A9 /* SceneDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SceneDelegate.m; sourceTree = "<group>"; };
+		B9C4D77724D61B3E0041D7A9 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		B9C4D77824D61B3E0041D7A9 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		B9C4D77B24D61B3E0041D7A9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		B9C4D77D24D61B3F0041D7A9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B9C4D78024D61B3F0041D7A9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		B9C4D78224D61B3F0041D7A9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B9C4D78324D61B3F0041D7A9 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		B9C4D78524D61B3F0041D7A9 /* ToneBarrierAppClip.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ToneBarrierAppClip.entitlements; sourceTree = "<group>"; };
+		B9C4D79124D621230041D7A9 /* NetworkExtension.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NetworkExtension.framework; path = System/Library/Frameworks/NetworkExtension.framework; sourceTree = SDKROOT; };
 		B9D6ABB42362338800CBF25C /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		B9D6ABB6236237D200CBF25C /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		B9E0231423126ADE00035A41 /* GraphView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GraphView.h; sourceTree = "<group>"; };
@@ -216,6 +233,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B96EB339230F9F3F0054F514 /* HealthKit.framework in Frameworks */,
+				B9C4D79224D621230041D7A9 /* NetworkExtension.framework in Frameworks */,
 				B9D6ABB7236237D200CBF25C /* MediaPlayer.framework in Frameworks */,
 				B9D6ABB52362338800CBF25C /* AudioToolbox.framework in Frameworks */,
 			);
@@ -226,7 +244,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				B98EBEEE230F3E1100C94E2E /* HealthKit.framework in Frameworks */,
-				B969249122F696B3002440CE /* JABPlanetaryHourWatchFramework.framework in Frameworks */,
 				8ACEC33922F7B7E600001AB3 /* WatchKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -259,6 +276,7 @@
 				B904CDE022D3CA350086CAF8 /* JABPlanetaryHourToneBarrier WatchKit Extension */,
 				B9AB425E22DD1A5900406201 /* JABPlanetaryHourToneBarrierIntentsExtension */,
 				B9AB426A22DD1A5A00406201 /* JABPlanetaryHourToneBarrierIntentsExtensionUI */,
+				B9C4D77024D61B3E0041D7A9 /* ToneBarrierAppClip */,
 				B904CDB822D3CA340086CAF8 /* Products */,
 				B954D8CF22D4A42C001AF97D /* Frameworks */,
 			);
@@ -279,7 +297,6 @@
 		B904CDB922D3CA340086CAF8 /* JABPlanetaryHourToneBarrier */ = {
 			isa = PBXGroup;
 			children = (
-				B9A553EA24815D1600941295 /* JABPlanetaryHourFrameworks.xcodeproj */,
 				B96EB33B230FA3CB0054F514 /* JABPlanetaryHourToneBarrierDebug.entitlements */,
 				B96EB338230F9F3F0054F514 /* JABPlanetaryHourToneBarrierRelease.entitlements */,
 				B904CDBA22D3CA340086CAF8 /* AppDelegate.h */,
@@ -344,30 +361,22 @@
 		B954D8CF22D4A42C001AF97D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B9C4D79124D621230041D7A9 /* NetworkExtension.framework */,
 				B9D6ABB6236237D200CBF25C /* MediaPlayer.framework */,
 				B9D6ABB42362338800CBF25C /* AudioToolbox.framework */,
 				B96EB334230F9F090054F514 /* HealthKit.framework */,
 				B98EBEED230F3E1100C94E2E /* HealthKit.framework */,
 				8ACEC33822F7B7DB00001AB3 /* WatchKit.framework */,
-				B969249022F696B3002440CE /* JABPlanetaryHourWatchFramework.framework */,
 				B954D8D022D4A42C001AF97D /* NotificationCenter.framework */,
 				B9AB426822DD1A5A00406201 /* IntentsUI.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		B9A553EB24815D1600941295 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		B9AB425E22DD1A5900406201 /* JABPlanetaryHourToneBarrierIntentsExtension */ = {
 			isa = PBXGroup;
 			children = (
 				B96EB33C230FA3D10054F514 /* JABPlanetaryHourToneBarrierIntentsExtensionDebug.entitlements */,
-				B96EB333230F9F090054F514 /* JABPlanetaryHourToneBarrierIntentsExtensionRelease.entitlements */,
 				B9AB425F22DD1A5A00406201 /* IntentHandler.h */,
 				B9AB426022DD1A5A00406201 /* IntentHandler.m */,
 				B9AB426222DD1A5A00406201 /* Info.plist */,
@@ -388,6 +397,25 @@
 			path = JABPlanetaryHourToneBarrierIntentsExtensionUI;
 			sourceTree = "<group>";
 		};
+		B9C4D77024D61B3E0041D7A9 /* ToneBarrierAppClip */ = {
+			isa = PBXGroup;
+			children = (
+				B9C4D77124D61B3E0041D7A9 /* AppDelegate.h */,
+				B9C4D77224D61B3E0041D7A9 /* AppDelegate.m */,
+				B9C4D77424D61B3E0041D7A9 /* SceneDelegate.h */,
+				B9C4D77524D61B3E0041D7A9 /* SceneDelegate.m */,
+				B9C4D77724D61B3E0041D7A9 /* ViewController.h */,
+				B9C4D77824D61B3E0041D7A9 /* ViewController.m */,
+				B9C4D77A24D61B3E0041D7A9 /* Main.storyboard */,
+				B9C4D77D24D61B3F0041D7A9 /* Assets.xcassets */,
+				B9C4D77F24D61B3F0041D7A9 /* LaunchScreen.storyboard */,
+				B9C4D78224D61B3F0041D7A9 /* Info.plist */,
+				B9C4D78324D61B3F0041D7A9 /* main.m */,
+				B9C4D78524D61B3F0041D7A9 /* ToneBarrierAppClip.entitlements */,
+			);
+			path = ToneBarrierAppClip;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -400,6 +428,7 @@
 				B904CDB522D3CA340086CAF8 /* Resources */,
 				B904CDFA22D3CA360086CAF8 /* Embed Watch Content */,
 				B954D8DD22D4A42C001AF97D /* Embed App Extensions */,
+				B9C4D76324D614C30041D7A9 /* Embed App Clips */,
 			);
 			buildRules = (
 			);
@@ -488,7 +517,7 @@
 		B904CDAF22D3CA340086CAF8 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1100;
+				LastUpgradeCheck = 1200;
 				ORGANIZATIONNAME = "The Life of a Demoniac";
 				TargetAttributes = {
 					B904CDB622D3CA340086CAF8 = {
@@ -522,12 +551,6 @@
 			mainGroup = B904CDAE22D3CA340086CAF8;
 			productRefGroup = B904CDB822D3CA340086CAF8 /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = B9A553EB24815D1600941295 /* Products */;
-					ProjectRef = B9A553EA24815D1600941295 /* JABPlanetaryHourFrameworks.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				B904CDB622D3CA340086CAF8 /* JABPlanetaryHourToneBarrier */,
@@ -598,7 +621,6 @@
 				B904CDCA22D3CA350086CAF8 /* main.m in Sources */,
 				B90B3A4D23D3F3C3008944E8 /* Frequencies.m in Sources */,
 				B904CDBC22D3CA340086CAF8 /* AppDelegate.m in Sources */,
-				B968BA0A23A9E303005C6653 /* ClicklessTones.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -693,6 +715,22 @@
 			name = MainInterface.storyboard;
 			sourceTree = "<group>";
 		};
+		B9C4D77A24D61B3E0041D7A9 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				B9C4D77B24D61B3E0041D7A9 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		B9C4D77F24D61B3F0041D7A9 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				B9C4D78024D61B3F0041D7A9 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
@@ -722,6 +760,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -746,7 +785,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.5;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -780,6 +819,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -798,7 +838,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.5;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -819,7 +859,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.blogspot.demonicactivity.bush.alan.james.ToneBarrier.watchkitapp.watchkitextension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.blogspot.demonicactivity.bush.alan.james.JABPlanetaryHourToneBarrier.watchkitapp.watchkitextension;
 				PRODUCT_NAME = "${TARGET_NAME}";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
@@ -858,7 +898,7 @@
 				DEVELOPMENT_TEAM = N9987K9442;
 				IBSC_MODULE = JABPlanetaryHourToneBarrier_WatchKit_Extension;
 				INFOPLIST_FILE = "JABPlanetaryHourToneBarrier WatchKit App/Info.plist";
-				PRODUCT_BUNDLE_IDENTIFIER = com.blogspot.demonicactivity.bush.alan.james.ToneBarrier.watchkitapp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.blogspot.demonicactivity.bush.alan.james.JABPlanetaryHourToneBarrier.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
@@ -896,10 +936,10 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.blogspot.demonicactivity.bush.alan.james.ToneBarrier;
+				PRODUCT_BUNDLE_IDENTIFIER = com.blogspot.demonicactivity.bush.alan.james.JABPlanetaryHourToneBarrier;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPPORTS_MACCATALYST = NO;
-				TARGETED_DEVICE_FAMILY = 1;
+				SUPPORTS_MACCATALYST = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -917,8 +957,8 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.blogspot.demonicactivity.bush.alan.james.JABPlanetaryHourToneBarrier;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPPORTS_MACCATALYST = NO;
-				TARGETED_DEVICE_FAMILY = 1;
+				SUPPORTS_MACCATALYST = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -953,10 +993,10 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.blogspot.demonicactivity.bush.alan.james.ToneBarrier.ToneBarrierIntentsExtensionUI;
+				PRODUCT_BUNDLE_IDENTIFIER = com.blogspot.demonicactivity.bush.alan.james.JABPlanetaryHourToneBarrier.ToneBarrierIntentsExtensionUI;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MACCATALYST = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -976,7 +1016,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.blogspot.demonicactivity.bush.alan.james.JABPlanetaryHourToneBarrier.JABPlanetaryHourToneBarrierIntentsExtensionUI;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MACCATALYST = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -994,10 +1034,10 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.blogspot.demonicactivity.bush.alan.james.ToneBarrier.ToneBarrierIntentsExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.blogspot.demonicactivity.bush.alan.james.JABPlanetaryHourToneBarrier.ToneBarrierIntentsExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MACCATALYST = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -1017,7 +1057,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.blogspot.demonicactivity.bush.alan.james.JABPlanetaryHourToneBarrier.JABPlanetaryHourToneBarrierIntentsExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MACCATALYST = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

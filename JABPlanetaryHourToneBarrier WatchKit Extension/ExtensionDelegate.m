@@ -7,7 +7,7 @@
 //
 
 #import "ExtensionDelegate.h"
-#import <JABPlanetaryHourWatchFramework/JABPlanetaryHourWatchFramework.h>
+//#import <JABPlanetaryHourWatchFramework/JABPlanetaryHourWatchFramework.h>
 #import "WatchToneGenerator.h"
 
 @interface ExtensionDelegate ()
