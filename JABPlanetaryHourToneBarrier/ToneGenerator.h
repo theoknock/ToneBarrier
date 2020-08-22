@@ -51,6 +51,5 @@ typedef void (^CreateAudioBufferCompletionBlock)(AVAudioPCMBuffer * _Nonnull buf
 @property (nonatomic, strong) dispatch_source_t _Nullable timer;
 
 - (BOOL)play;
-- (void)alarm;
 
 @end
