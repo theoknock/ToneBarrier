@@ -10,68 +10,89 @@
 #import <MediaPlayer/MediaPlayer.h>
 #import <GameKit/GameKit.h>
 
-#import "ToneBarrierGenerator.h"
-#import "ToneBarrierPlayer.h"
-//#import "ClicklessTones.h"
-//#import "FrequenciesPairs.h"
-//#import "Frequencies.h"
+#import <objc/runtime.h>
 
-#include "easing.h"
+#import "ToneBarrierGenerator.h"
 
 typedef enum : NSUInteger {
-    ChannelOutputStereoLeft,  // the channel data for the left output
-    ChannelOutputStereoRight, // the channel data for the right output
-    ChannelOutputMono         // use the same channel data for both the left and right outputs
-} ChannelOutput;              // the output route for channel data
+    ChannelOutputStereoLeft,
+    ChannelOutputStereoRight,
+    ChannelOutputMono
+} ChannelOutput;
+
+typedef enum : NSUInteger {
+    MersenneTwisterRandomSourceValueScalarTypeInt,
+    MersenneTwisterRandomSourceValueScalarTypeFloat
+} MersenneTwisterRandomSourceValueScalarType;
+
+typedef enum : NSUInteger {
+    GGaussianDistributorRangeValuesScalarTypeLowerUpperBounds,
+    GGaussianDistributorRangeValuesScalarTypeMeanDeviation
+} GaussianDistributorRangeValuesScalarType;
 
 struct buffer_struct
 {
     AVAudioFormat * __nonnull audio_format;
     double duration;
+    AVAudioFrameCount frame_count;
     
     struct channels_struct
     {
-        __unsafe_unretained id flag;
-
+        AVAudioChannelCount channel_count;
+        
         struct channel_struct
         {
             ChannelOutput channel_output;
             struct frequencies_struct * channel_frequencies;
             AVAudioFramePosition starting_frame;
             AVAudioFrameCount frame_count;
-            float * __nullable samples;
-            __unsafe_unretained id flag;
-
+            float * __nonnull samples;
+            
             struct frequencies_struct
             {
-                int frequencies_array_length;
-                double * __nullable frequencies_array;
-                __unsafe_unretained id flag;
+                int frequencies_count;
+                double * __nonnull frequencies;
+                
+                struct frequency_random_value_generator
+                {
+                    GKMersenneTwisterRandomSource * mersenne_twister_random_source;
+                    MersenneTwisterRandomSourceValueScalarType random_number_scalar_type;
+                    GKGaussianDistribution * gaussian_distributor;
+                    GaussianDistributorRangeValuesScalarType range_values_scalar_type;
+                    
+                    union gaussian_distributor_range_values
+                    {
+                        float * mean_deviation;
+                        int * lower_upper_bounds;
+                    } gaussian_distributor_range_values;
+                    
+                } frequency_random_value_generator;
+                
             } * __nonnull frequencies_struct;
-
+            
         } * __nonnull channel_struct[/* channel_count */];
         
     } * __nonnull channels_struct;
     
 } buffer_struct;
 
-static struct buffer_struct * __nonnull (^init_buffer)(AVAudioFormat * ) = ^struct buffer_struct * __nonnull (AVAudioFormat * __nullable audio_format)
-{
-    
-    struct stereo_channel_list * stereo_channel_list = malloc(sizeof(struct stereo_channel_list));
-    stereo_channel_list->audio_format                = audio_format;
-    stereo_channel_list->frame_capacity              = frame_capacity;
-    stereo_channel_list->channel_count               = channel_count;
-    stereo_channel_list->duration                    = duration;
-    stereo_channel_list->flag                        = flag;
-    
-    for (int i = 0; i < 2; i++)
-    {
-        stereo_channel_list->stereo_channels[i] = stereo_channels[i];
-    }
-    
-    return stereo_channel_list;
-};
+
+//static struct buffer_struct * __nonnull (^init_buffer)(AVAudioFormat * ) = ^struct buffer_struct * __nonnull (AVAudioFormat * __nullable audio_format)
+//{
+//    struct channels_struct * channels = malloc(sizeof(struct channels_struct));
+//    channels->audio_format                = audio_format;
+//    channels->frame_capacity              = frame_capacity;
+//    channels->channel_count               = channel_count;
+//    channels->duration                    = duration;
+//    channels->flag                        = flag;
+//
+//    for (int i = 0; i < 2; i++)
+//    {
+//        channels->channels[i] = channels[i];
+//    }
+//
+//    return stereo_channel_list;
+//};
 
 typedef void (^ToneCompletionBlock)(void);
 typedef void (^BufferCompletionBlock)(AVAudioPCMBuffer * _Nonnull buffer, ToneCompletionBlock _Nonnull ToneCompletionBlock);
@@ -87,10 +108,12 @@ static void(^buffer)(struct buffer_struct * __nullable, BufferCompletionBlock) =
 @property (nonatomic, strong) AVAudioFormat * _Nullable     audioFormat;
 @property (nonatomic, strong) AVAudioUnitReverb * _Nullable reverb;
 
-@property (nonatomic, readonly) struct frequencies_struct * (^frequencies)(int frequencies_array_length, double * frequencies_array, __unsafe_unretained id flag);
-@property (nonatomic, readonly) struct stereo_channel_struct * (^stereo_channel)(StereoChannelOutput stereo_channel_output, struct frequencies_struct * stereo_channels_frequencies, AVAudioFramePosition index_start, AVAudioFrameCount samples_count, float * __nullable samples, __unsafe_unretained id flag);
-@property (nonatomic, readonly) struct stereo_channel_list * (^channel_list)(AVAudioFormat * audio_format, AVAudioFrameCount frame_capacity, AVAudioChannelCount channel_count, double duration, struct stereo_channel_struct * stereoChannels[2], __unsafe_unretained id flag);
-
+@property (nonatomic, readonly) struct buffer_struct * (^init_buffer_struct)(void);
+@property (nonatomic, readonly) struct channels_struct * (^init_channels_struct)(void);
+@property (nonatomic, readonly) struct channel_struct * (^init_channel_struct)(void);
+@property (nonatomic, readonly) struct frequencies_struct * (^init_frequencies_struct)(void);
+@property (nonatomic, readonly) struct frequency_random_value_generator * (^init_frequency_random_value_generator)(void);
+@property (nonatomic, readonly) union  gaussian_distributor_range_values * (^init_gaussian_distributor_range_values)(void);
 
 @end
 
@@ -110,102 +133,108 @@ static void(^buffer)(struct buffer_struct * __nullable, BufferCompletionBlock) =
 //                                                                 pcmBuffer.floatChannelData[StereoChannelOutputLeft],
 //                                                                 nil);
 
-- (struct frequencies_struct * (^)(int, double *, __unsafe_unretained id))frequencies
-{
-   return ^struct frequencies_struct * (int frequencies_array_length,
-                                       double * frequencies_array,
-                                       __unsafe_unretained id flag)
-    {
-        struct frequencies_struct * frequencies = malloc(sizeof(struct frequencies_struct));
-        frequencies->frequencies_array_length = frequencies_array_length;
-        frequencies->frequencies_array = malloc(sizeof(double) * frequencies_array_length);
-        for (int i = 0; i < frequencies_array_length; i++)
-        {
-            frequencies->frequencies_array[i] = frequencies_array[i];
-        }
-        frequencies->flag = flag;
-        
-        return frequencies;
-    };
-}
-
-- (struct stereo_channel_struct * (^)(struct frequencies_struct *, __unsafe_unretained id))stereo_channels
-{
-    return ^struct stereo_channel_struct * (struct frequencies_struct * stereo_channels_frequencies, __unsafe_unretained id flag)
-    {
-        struct stereo_channel_struct * stereo_channels = malloc(sizeof(struct stereo_channel_struct) + (sizeof(frequencies) * 2));
-        stereo_channels->stereo_channels_frequencies = malloc(sizeof(struct frequencies_struct) * 2);
-        for (int i = 0; i < 2; i++)
-        {
-            stereo_channels->stereo_channels_frequencies[i] = stereo_channels_frequencies[i];
-        }
-
-        stereo_channels->flag = flag;
-
-        return stereo_channels;
-    };
-}
-
-- (struct stereo_channel_list * (^)(AVAudioFormat *, AVAudioFrameCount, AVAudioChannelCount, double, struct stereo_channel_struct * [2], __unsafe_unretained id))channel_list
-{
-    return ^struct stereo_channel_list * (AVAudioFormat * audio_format,
-                                          AVAudioFrameCount frame_capacity,
-                                          AVAudioChannelCount channel_count,
-                                          double duration,
-                                          struct stereo_channel_struct * stereo_channels[2],
-                                          __unsafe_unretained id flag)
-    {
-        struct stereo_channel_list * stereo_channel_list = malloc(sizeof(struct stereo_channel_list));
-        stereo_channel_list->audio_format                = audio_format;
-        stereo_channel_list->frame_capacity              = frame_capacity;
-        stereo_channel_list->channel_count               = channel_count;
-        stereo_channel_list->duration                    = duration;
-        stereo_channel_list->flag                        = flag;
-        
-        for (int i = 0; i < 2; i++)
-        {
-            stereo_channel_list->stereo_channels[i] = stereo_channels[i];
-        }
-        
-        return stereo_channel_list;
-    };
-}
+//- (struct frequencies_struct * (^)(int, double *, __unsafe_unretained id))frequencies
+//{
+//   return ^struct frequencies_struct * (int frequencies_array_length,
+//                                       double * frequencies_array,
+//                                       __unsafe_unretained id flag)
+//    {
+//        struct frequencies_struct * frequencies = malloc(sizeof(struct frequencies_struct));
+//        frequencies->frequencies_array_length = frequencies_array_length;
+//        frequencies->frequencies_array = malloc(sizeof(double) * frequencies_array_length);
+//        for (int i = 0; i < frequencies_array_length; i++)
+//        {
+//            frequencies->frequencies_array[i] = frequencies_array[i];
+//        }
+//        frequencies->flag = flag;
+//
+//        return frequencies;
+//    };
+//}
+//
+//- (struct stereo_channel_struct * (^)(struct frequencies_struct *, __unsafe_unretained id))stereo_channels
+//{
+//    return ^struct stereo_channel_struct * (struct frequencies_struct * stereo_channels_frequencies, __unsafe_unretained id flag)
+//    {
+//        struct stereo_channel_struct * stereo_channels = malloc(sizeof(struct stereo_channel_struct) + (sizeof(frequencies) * 2));
+//        stereo_channels->stereo_channels_frequencies = malloc(sizeof(struct frequencies_struct) * 2);
+//        for (int i = 0; i < 2; i++)
+//        {
+//            stereo_channels->stereo_channels_frequencies[i] = stereo_channels_frequencies[i];
+//        }
+//
+//        stereo_channels->flag = flag;
+//
+//        return stereo_channels;
+//    };
+//}
+//
+//- (struct stereo_channel_list * (^)(AVAudioFormat *, AVAudioFrameCount, AVAudioChannelCount, double, struct stereo_channel_struct * [2], __unsafe_unretained id))channel_list
+//{
+//    return ^struct stereo_channel_list * (AVAudioFormat * audio_format,
+//                                          AVAudioFrameCount frame_capacity,
+//                                          AVAudioChannelCount channel_count,
+//                                          double duration,
+//                                          struct stereo_channel_struct * stereo_channels[2],
+//                                          __unsafe_unretained id flag)
+//    {
+//        struct stereo_channel_list * stereo_channel_list = malloc(sizeof(struct stereo_channel_list));
+//        stereo_channel_list->audio_format                = audio_format;
+//        stereo_channel_list->frame_capacity              = frame_capacity;
+//        stereo_channel_list->channel_count               = channel_count;
+//        stereo_channel_list->duration                    = duration;
+//        stereo_channel_list->flag                        = flag;
+//
+//        for (int i = 0; i < 2; i++)
+//        {
+//            stereo_channel_list->stereo_channels[i] = stereo_channels[i];
+//        }
+//
+//        return stereo_channel_list;
+//    };
+//}
 
 
 
 // TO-DO: A stereo_channel_list init block, which takes a stereo_channel_struct init block, which takes a frequencies_struct init block
 //struct stereo_channel_struct * (^init_stereo_channel_struct)(void) = ^void(void)
 
-struct stereo_channel_list * (^init_stereo_channel_list)(struct stereo_channel_struct * (^)(struct frequencies_struct * (^)(void))) = ^struct stereo_channel_list * (struct stereo_channel_struct * (^init_stereo_channel_struct)(struct frequencies_struct * (^init_frequencies_struct)(void)))
-{
-    struct stereo_channel_list * stereo_channel_list = malloc(sizeof(struct stereo_channel_list));
-    
-    init_stereo_channel_struct(^struct frequencies_struct * {
-        return nil;
-    });
-    
-    return (struct stereo_channel_list * )stereo_channel_list;
-};
+//struct stereo_channel_list * (^init_stereo_channel_list)(struct stereo_channel_struct * (^)(struct frequencies_struct * (^)(void))) = ^struct stereo_channel_list * (struct stereo_channel_struct * (^init_stereo_channel_struct)(struct frequencies_struct * (^init_frequencies_struct)(void)))
+//{
+//    struct stereo_channel_list * stereo_channel_list = malloc(sizeof(struct stereo_channel_list));
+//
+//    init_stereo_channel_struct(^struct frequencies_struct * {
+//        return nil;
+//    });
+//
+//    return (struct stereo_channel_list * )stereo_channel_list;
+//};
 
 - (void)test1:(int)a1 test2:(int)a2
 {
-    ^(int d1, int c2)
+    int(^(^myNestedBlock)(void))(void);
+    //
+    typedef int(^IntBlock)(void);
+    IntBlock(^nestedBlock)(void);
+    
+    ^(int d1, int(^c2)(void))
     {
-        printf("d1 == %d\nc2 == %d", d1, c2);
-        } (^(int c1)
-           {
-                printf("c1 == %d", c1);
-                return c1;
-            } (^(int b1)
-               {
-                    printf("b1 == %d", b1);
-                    return b1;
-                } (a1)),
-           ^(int b2)
-           {
-                printf("b2 == %d", b2);
-                return b2;
-           } (a2));
+        return c2;
+    } (^(int c1)
+       {
+        return c1;
+    } (^(int b1)
+       {
+        return b1;
+    } (a1)),
+       ^(int b2)
+       {
+        return ^{
+            return b2;
+        };
+    } (a2));
+    
+    // TO-DO: Nested block literals that return blocks that return blocks and so on...
 }
 
 
@@ -688,9 +717,9 @@ void (^calculateChannelData)(AVAudioFrameCount, struct frequencies_struct *, dou
     {
         double normalized_time = normalize(0.0, 1.0, index, 0.0, sampleCount);
         double frequency_sum   = 0.0;
-        for (int i = 0; i < frequencies->frequencies_array_length; i++)
+        for (int i = 0; i < frequencies->frequencies_count; i++)
         {
-            frequency_sum += sinf(2.0 * M_PI * normalized_time * frequencies->frequencies_array[i]);
+            frequency_sum += sinf(2.0 * M_PI * normalized_time * frequencies->frequencies[i]);
         }
         double sample = frequency_sum * envelope_lfo(normalized_time, outputVolume);
         
@@ -709,20 +738,18 @@ static void(^createAudioBuffer)(AVAudioSession *, AVAudioFormat *, CreateAudioBu
         AVAudioPCMBuffer *pcmBuffer  = [[AVAudioPCMBuffer alloc] initWithPCMFormat:audioFormat frameCapacity:frameCount];
         pcmBuffer.frameLength        = frameCount;
         
-//        double tone_split = randomize(0.0, 1.0, 1.0);
-//        double device_volume = pow(audioSession.outputVolume, 3.0);
-                                                          
-//        calculateChannelData(pcmBuffer.frameLength,
-//                             frequencies_struct_left,
-//                             tone_split,
-//                             device_volume,
-//                             pcmBuffer.floatChannelData[0]);
-//
-//        calculateChannelData(pcmBuffer.frameLength,
-//                             frequencies_struct_right,
-//                             tone_split,
-//                             device_volume,
-//                             ([audioFormat channelCount] == 2) ? pcmBuffer.floatChannelData[1] : nil);
+        //        double tone_split = randomize(0.0, 1.0, 1.0);
+        //        double device_volume = pow(audioSession.outputVolume, 3.0);
+        
+        //        calculateChannelData(pcmBuffer.frameLength,
+        //                             frequencies_struct_left,
+        //                             tone_split,
+        //                             device_volume,
+        //                             pcmBuffer.floatChannelData[0]);
+        //
+        //        calculateChannelData(pcmBuffer.frameLength,
+        //                             frequencies_struct_right,
+        
         
         return pcmBuffer;
     };
@@ -784,7 +811,7 @@ static void(^createAudioBuffer)(AVAudioSession *, AVAudioFormat *, CreateAudioBu
         {
             if (![self.playerNode isPlaying]) [self.playerNode play];
             
-            createAudioBuffer([AVAudioSession sharedInstance], self.playerNode format, ^(AVAudioPCMBuffer * audio_buffer, PlayedToneCompletionBlock playedToneCompletionBlock) {
+            createAudioBuffer([AVAudioSession sharedInstance], [self.playerNode outputFormatForBus:0], ^(AVAudioPCMBuffer * audio_buffer, PlayedToneCompletionBlock playedToneCompletionBlock) {
                 [self.playerNode scheduleBuffer:audio_buffer atTime:nil options:AVAudioPlayerNodeBufferInterruptsAtLoop completionCallbackType:AVAudioPlayerNodeCompletionDataPlayedBack completionHandler:^(AVAudioPlayerNodeCompletionCallbackType callbackType) {
                     if (callbackType == AVAudioPlayerNodeCompletionDataPlayedBack)
                     {
